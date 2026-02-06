@@ -13,7 +13,6 @@
     "lint": "echo \"Error: no lint specified\" && exit 1",
     "type-check": "echo \"Error: no check specified\" && exit 1"
   },
-  "author": "richard.solar@goodrequest.com",
   "license": "ISC",
   "dependencies": {
     "cross-env": "^7.0.2",
