@@ -15,7 +15,7 @@
 - create db schema and populate db with `npm run seed`
 - run express server with `npm start`
 
-### How submit assignment
+### How to submit assignment
 
 - create public bitbucket or github repository
 - commit and push changes continuously
