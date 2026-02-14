@@ -1,0 +1,17 @@
+# used for local DB
+# run `docker compose up -d` to start the DB
+services:
+  postgres:
+    image: postgres:16
+    container_name: good_request_postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fitness_app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
