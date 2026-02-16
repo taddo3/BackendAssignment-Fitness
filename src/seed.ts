@@ -1,5 +1,6 @@
 import { models, sequelize } from './db/index'
 import { EXERCISE_DIFFICULTY } from './utils/enums'
+import { logError } from './utils/logger'
 
 const {
 	Exercise,
@@ -48,6 +49,6 @@ seedDB().then(() => {
 	console.log('DB seed done')
 	process.exit(0)
 }).catch((err) => {
-	console.error('error in seed, check your data and model \n \n', err)
+	logError(err, 'Error in seed, check your data and model')
 	process.exit(1)
 })

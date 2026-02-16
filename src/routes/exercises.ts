@@ -18,6 +18,7 @@ import {
 	buildResponse,
 	handleValidationResult
 } from '../utils/http'
+import { logError } from '../utils/logger'
 
 const router = Router()
 
@@ -88,7 +89,13 @@ export default () => {
 					}
 				}, 'List of exercises'))
 			} catch (error) {
-				console.error('Error listing exercises', error)
+				logError(error, 'Error listing exercises', {
+					req: {
+						method: req.method,
+						url: req.url,
+						query: req.query
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -130,7 +137,13 @@ export default () => {
 
 				return res.status(201).json(buildResponse(req, exercise, 'Exercise created'))
 			} catch (error) {
-				console.error('Error creating exercise', error)
+				logError(error, 'Error creating exercise', {
+					req: {
+						method: req.method,
+						url: req.url,
+						body: req.body
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -181,7 +194,14 @@ export default () => {
 
 				return res.json(buildResponse(req, exercise, 'Exercise updated'))
 			} catch (error) {
-				console.error('Error updating exercise', error)
+				logError(error, 'Error updating exercise', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params,
+						body: req.body
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -211,7 +231,13 @@ export default () => {
 
 				return res.json(buildResponse(req, {}, 'Exercise deleted'))
 			} catch (error) {
-				console.error('Error deleting exercise', error)
+				logError(error, 'Error deleting exercise', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}

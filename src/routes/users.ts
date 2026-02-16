@@ -20,6 +20,7 @@ import {
 	buildResponse,
 	handleValidationResult
 } from '../utils/http'
+import { logError } from '../utils/logger'
 
 const router = Router()
 
@@ -54,7 +55,12 @@ export default () => {
 				// Any other role is forbidden
 				return res.status(403).json(buildResponse(req, {}, 'Forbidden'))
 			} catch (error) {
-				console.error('Error listing users', error)
+				logError(error, 'Error listing users', {
+					req: {
+						method: req.method,
+						url: req.url
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -75,7 +81,12 @@ export default () => {
 
 				return res.json(buildResponse(req, user, 'User profile'))
 			} catch (error) {
-				console.error('Error getting own profile', error)
+				logError(error, 'Error getting own profile', {
+					req: {
+						method: req.method,
+						url: req.url
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -103,7 +114,13 @@ export default () => {
 
 				return res.json(buildResponse(req, user, 'User detail'))
 			} catch (error) {
-				console.error('Error getting user detail', error)
+				logError(error, 'Error getting user detail', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -151,7 +168,14 @@ export default () => {
 
 				return res.json(buildResponse(req, user, 'User updated'))
 			} catch (error) {
-				console.error('Error updating user', error)
+				logError(error, 'Error updating user', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params,
+						body: req.body
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}

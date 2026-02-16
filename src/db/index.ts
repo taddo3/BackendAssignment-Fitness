@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { Sequelize } from 'sequelize'
+import { logError } from '../utils/logger'
 
 import defineExercise from './exercise'
 import defineProgram from './program'
@@ -10,7 +11,9 @@ const sequelize: Sequelize = new Sequelize('postgresql://postgres:postgres@local
 	logging: false
 })
 
-sequelize.authenticate().catch((e: any) => console.error(`Unable to connect to the database${e}.`))
+sequelize.authenticate().catch((e: any) => {
+	logError(e, 'Unable to connect to the database')
+})
 
 const Exercise = defineExercise(sequelize, 'exercise')
 const Program = defineProgram(sequelize, 'program')

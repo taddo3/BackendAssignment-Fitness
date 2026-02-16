@@ -11,6 +11,7 @@ import {
 	buildResponse,
 	handleValidationResult
 } from '../utils/http'
+import { logError } from '../utils/logger'
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
@@ -96,7 +97,12 @@ export default () => {
 
 				return res.status(201).json(buildResponse(req, createdUser, 'You have successfully registered'))
 			} catch (error) {
-				console.error('Error in register', error)
+				logError(error, 'Error in register', {
+					req: {
+						method: req.method,
+						url: req.url
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -151,7 +157,12 @@ export default () => {
 					token
 				}, 'You have successfully logged in'))
 			} catch (error) {
-				console.error('Error in login', error)
+				logError(error, 'Error in login', {
+					req: {
+						method: req.method,
+						url: req.url
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}

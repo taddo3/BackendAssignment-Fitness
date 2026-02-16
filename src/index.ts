@@ -9,6 +9,8 @@ import UsersRouter from './routes/users'
 import UserExerciseRouter from './routes/userExercise'
 import { responseSanitizer } from './middleware/sanitizeResponse'
 import { languageMiddleware } from './middleware/language'
+import { errorHandler } from './middleware/errorHandler'
+import { logError } from './utils/logger'
 
 const app = express()
 
@@ -22,12 +24,15 @@ app.use('/exercises', ExerciseRouter())
 app.use('/users', UsersRouter())
 app.use('/user-exercises', UserExerciseRouter())
 
+// Error handler must be last middleware
+app.use(errorHandler)
+
 const httpServer = http.createServer(app)
 
 try {
     sequelize.sync()
 } catch (error) {
-    console.log('Sequelize sync error')
+    logError(error, 'Sequelize sync error')
 }
 
 httpServer.listen(8000).on('listening', () => console.log(`Server started at port ${8000}`))

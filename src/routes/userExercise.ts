@@ -16,6 +16,7 @@ import {
 	buildResponse,
 	handleValidationResult
 } from '../utils/http'
+import { logError } from '../utils/logger'
 
 const router = Router()
 
@@ -47,7 +48,12 @@ export default () => {
 
 				return res.json(buildResponse(req, completed, 'List of completed exercises'))
 			} catch (error) {
-				console.error('Error listing user exercises', error)
+				logError(error, 'Error listing user exercises', {
+					req: {
+						method: req.method,
+						url: req.url
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -89,7 +95,13 @@ export default () => {
 
 				return res.status(201).json(buildResponse(req, tracked, 'Exercise tracked as completed'))
 			} catch (error) {
-				console.error('Error tracking user exercise', error)
+				logError(error, 'Error tracking user exercise', {
+					req: {
+						method: req.method,
+						url: req.url,
+						body: req.body
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -123,7 +135,13 @@ export default () => {
 
 				return res.json(buildResponse(req, {}, 'User exercise deleted'))
 			} catch (error) {
-				console.error('Error deleting user exercise', error)
+				logError(error, 'Error deleting user exercise', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}

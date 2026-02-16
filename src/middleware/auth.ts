@@ -6,6 +6,7 @@ import {
 import jwt from 'jsonwebtoken'
 import { buildResponse } from '../utils/http'
 import { LocalizedRequest } from '../utils/localization'
+import { logError } from '../utils/logger'
 
 import { USER_ROLE } from '../utils/enums'
 
@@ -45,7 +46,12 @@ export const authenticateJWT = (req: AuthenticatedRequest, res: Response, next: 
 		next()
 		return
 	} catch (error) {
-		console.error('JWT verification failed', error)
+		logError(error, 'JWT verification failed', {
+			req: {
+				method: req.method,
+				url: req.url
+			}
+		})
 		res.status(401).json(buildResponse(req as LocalizedRequest, {}, 'Invalid or expired token'))
 		return
 	}

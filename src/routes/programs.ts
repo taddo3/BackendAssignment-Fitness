@@ -13,6 +13,7 @@ import {
 	buildResponse,
 	handleValidationResult
 } from '../utils/http'
+import { logError } from '../utils/logger'
 
 const router = Router()
 
@@ -60,7 +61,13 @@ export default () => {
 
 				return res.json(buildResponse(req, exercise, 'Exercise added to program'))
 			} catch (error) {
-				console.error('Error adding exercise to program', error)
+				logError(error, 'Error adding exercise to program', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
@@ -95,7 +102,13 @@ export default () => {
 
 				return res.json(buildResponse(req, exercise, 'Exercise removed from program'))
 			} catch (error) {
-				console.error('Error removing exercise from program', error)
+				logError(error, 'Error removing exercise from program', {
+					req: {
+						method: req.method,
+						url: req.url,
+						params: req.params
+					}
+				})
 				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
