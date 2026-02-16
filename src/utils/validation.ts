@@ -15,7 +15,7 @@ export const validateEmail = (field: string = 'email'): ValidationChain => {
 	return body(field)
 		.trim()
 		.isEmail()
-		.withMessage('Email must be a valid email')
+		.withMessage('{fieldName} must be a valid email')
 }
 
 /**
@@ -25,7 +25,7 @@ export const validateRequiredString = (field: string, fieldName?: string): Valid
 	return body(field)
 		.trim()
 		.notEmpty()
-		.withMessage(fieldName ? `${fieldName} is required` : `${field} is required`)
+		.withMessage('{fieldName} is required')
 }
 
 /**
@@ -36,7 +36,7 @@ export const validateOptionalString = (field: string, fieldName?: string): Valid
 		.optional()
 		.trim()
 		.notEmpty()
-		.withMessage(fieldName ? `${fieldName} cannot be empty` : `${field} cannot be empty`)
+		.withMessage('{fieldName} cannot be empty')
 }
 
 /**
@@ -45,7 +45,7 @@ export const validateOptionalString = (field: string, fieldName?: string): Valid
 export const validatePositiveInteger = (field: string, fieldName?: string): ValidationChain => {
 	return body(field)
 		.isInt({ min: 1 })
-		.withMessage(fieldName ? `${fieldName} must be a positive integer` : `${field} must be a positive integer`)
+		.withMessage('{fieldName} must be a positive integer')
 }
 
 /**
@@ -54,7 +54,7 @@ export const validatePositiveInteger = (field: string, fieldName?: string): Vali
 export const validateNonNegativeInteger = (field: string, fieldName?: string): ValidationChain => {
 	return body(field)
 		.isInt({ min: 0 })
-		.withMessage(fieldName ? `${fieldName} must be a non-negative integer` : `${field} must be a non-negative integer`)
+		.withMessage('{fieldName} must be a non-negative integer')
 }
 
 /**
@@ -64,7 +64,7 @@ export const validateOptionalPositiveInteger = (field: string, fieldName?: strin
 	return body(field)
 		.optional()
 		.isInt({ min: 1 })
-		.withMessage(fieldName ? `${fieldName} must be a positive integer` : `${field} must be a positive integer`)
+		.withMessage('{fieldName} must be a positive integer')
 }
 
 /**
@@ -73,7 +73,7 @@ export const validateOptionalPositiveInteger = (field: string, fieldName?: strin
 export const validatePassword = (field: string = 'password', minLength: number = 6): ValidationChain => {
 	return body(field)
 		.isLength({ min: minLength })
-		.withMessage(`Password must be at least ${minLength} characters long`)
+		.withMessage('{fieldName} must be at least {min} characters long')
 }
 
 /**
@@ -82,7 +82,7 @@ export const validatePassword = (field: string = 'password', minLength: number =
 export const validateEnum = (field: string, enumValues: string[], fieldName?: string): ValidationChain => {
 	return body(field)
 		.isIn(enumValues)
-		.withMessage(fieldName ? `Invalid ${fieldName}` : `Invalid ${field}`)
+		.withMessage('Invalid {fieldName}')
 }
 
 /**
@@ -92,7 +92,7 @@ export const validateOptionalEnum = (field: string, enumValues: string[], fieldN
 	return body(field)
 		.optional()
 		.isIn(enumValues)
-		.withMessage(fieldName ? `Invalid ${fieldName}` : `Invalid ${field}`)
+		.withMessage('Invalid {fieldName}')
 }
 
 /**
@@ -102,7 +102,7 @@ export const validateISO8601Date = (field: string, fieldName?: string): Validati
 	return body(field)
 		.optional()
 		.isISO8601()
-		.withMessage(fieldName ? `${fieldName} must be a valid ISO8601 date` : `${field} must be a valid ISO8601 date`)
+		.withMessage('{fieldName} must be a valid ISO8601 date')
 }
 
 /**
@@ -111,7 +111,7 @@ export const validateISO8601Date = (field: string, fieldName?: string): Validati
 export const validateParamId = (paramName: string = 'id', fieldName?: string): ValidationChain => {
 	return param(paramName)
 		.isInt({ min: 1 })
-		.withMessage(fieldName ? `${fieldName} must be a positive integer` : `${paramName} must be a positive integer`)
+		.withMessage('{fieldName} must be a positive integer')
 }
 
 /**
@@ -121,7 +121,7 @@ export const validateQueryPositiveInteger = (queryName: string, fieldName?: stri
 	return query(queryName)
 		.optional()
 		.isInt({ min: 1 })
-		.withMessage(fieldName ? `${fieldName} must be a positive integer` : `${queryName} must be a positive integer`)
+		.withMessage('{fieldName} must be a positive integer')
 }
 
 /**
@@ -132,7 +132,7 @@ export const validateQueryOptionalString = (queryName: string, fieldName?: strin
 		.optional()
 		.trim()
 		.notEmpty()
-		.withMessage(fieldName ? `${fieldName} cannot be empty` : `${queryName} cannot be empty`)
+		.withMessage('{fieldName} cannot be empty')
 }
 
 /**
@@ -142,7 +142,7 @@ export const validateQueryLimit = (queryName: string = 'limit', min: number = 1,
 	return query(queryName)
 		.optional()
 		.isInt({ min, max })
-		.withMessage(`${queryName} must be between ${min} and ${max}`)
+		.withMessage('{fieldName} must be between {min} and {max}')
 }
 
 /**
@@ -152,7 +152,7 @@ export const validateQueryPage = (queryName: string = 'page'): ValidationChain =
 	return query(queryName)
 		.optional()
 		.isInt({ min: 1 })
-		.withMessage(`${queryName} must be a positive integer`)
+		.withMessage('{fieldName} must be a positive integer')
 }
 
 // ==================== Validation Schemas ====================
@@ -175,7 +175,7 @@ export const registerValidation = [
  */
 export const loginValidation = [
 	validateEmail('email'),
-	body('password').notEmpty().withMessage('Password is required')
+	body('password').notEmpty().withMessage('{fieldName} is required')
 ]
 
 /**
@@ -229,7 +229,7 @@ export const updateUserValidation = [
 	validateOptionalString('name', 'Name'),
 	validateOptionalString('surname', 'Surname'),
 	validateOptionalString('nickName', 'NickName'),
-	body('age').optional().isInt({ min: 0 }).withMessage('Age must be a non-negative integer'),
+	body('age').optional().isInt({ min: 0 }).withMessage('{fieldName} must be a non-negative integer'),
 	validateOptionalEnum('role', Object.values(USER_ROLE), 'role')
 ]
 
@@ -272,5 +272,5 @@ export const validateOptionalNonNegativeInteger = (field: string, fieldName?: st
 	return body(field)
 		.optional()
 		.isInt({ min: 0 })
-		.withMessage(fieldName ? `${fieldName} must be a non-negative integer` : `${field} must be a non-negative integer`)
+		.withMessage('{fieldName} must be a non-negative integer')
 }
