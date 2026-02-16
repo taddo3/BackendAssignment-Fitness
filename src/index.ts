@@ -4,11 +4,15 @@ import express from 'express'
 import { sequelize } from './db'
 import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
+import AuthRouter from './routes/auth'
+import { responseSanitizer } from './middleware/sanitizeResponse'
 
 const app = express()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(responseSanitizer)
+app.use('/auth', AuthRouter())
 app.use('/programs', ProgramRouter())
 app.use('/exercises', ExerciseRouter())
 
