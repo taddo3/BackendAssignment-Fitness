@@ -4,21 +4,22 @@ import {
 	Response,
 	NextFunction
 } from 'express'
-import {
-	body,
-	param,
-	query
-} from 'express-validator'
 import { Op } from 'sequelize'
 
 import { models } from '../db'
-import { EXERCISE_DIFFICULTY, USER_ROLE } from '../utils/enums'
+import { USER_ROLE } from '../utils/enums'
 import { authenticateJWT, authorizeRoles } from '../middleware/auth'
 import {
 	buildResponse,
 	handleValidationResult
 } from '../utils/http'
 import { logError } from '../utils/logger'
+import {
+	getExercisesQueryValidation,
+	createExerciseValidation,
+	updateExerciseValidation,
+	deleteExerciseValidation
+} from '../utils/validation'
 
 const router = Router()
 
@@ -30,12 +31,7 @@ const {
 export default () => {
 	router.get(
 		'/',
-		[
-			query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-			query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-			query('programID').optional().isInt({ min: 1 }).withMessage('programID must be a positive integer'),
-			query('search').optional().trim().notEmpty().withMessage('Search cannot be empty')
-		],
+		getExercisesQueryValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -105,11 +101,7 @@ export default () => {
 		'/',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			body('name').trim().notEmpty().withMessage('Name is required'),
-			body('difficulty').isIn(Object.values(EXERCISE_DIFFICULTY)).withMessage('Invalid difficulty'),
-			body('programID').optional().isInt({ min: 1 }).withMessage('programID must be a positive integer')
-		],
+		createExerciseValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -153,12 +145,7 @@ export default () => {
 		'/:id',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			param('id').isInt({ min: 1 }).withMessage('Exercise id must be a positive integer'),
-			body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
-			body('difficulty').optional().isIn(Object.values(EXERCISE_DIFFICULTY)).withMessage('Invalid difficulty'),
-			body('programID').optional().isInt({ min: 1 }).withMessage('programID must be a positive integer')
-		],
+		updateExerciseValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -211,9 +198,7 @@ export default () => {
 		'/:id',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			param('id').isInt({ min: 1 }).withMessage('Exercise id must be a positive integer')
-		],
+		deleteExerciseValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return

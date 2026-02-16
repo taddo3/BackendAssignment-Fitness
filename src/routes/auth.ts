@@ -4,7 +4,6 @@ import {
 	Response,
 	NextFunction
 } from 'express'
-import { body } from 'express-validator'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import {
@@ -12,6 +11,10 @@ import {
 	handleValidationResult
 } from '../utils/http'
 import { logError } from '../utils/logger'
+import {
+	registerValidation,
+	loginValidation
+} from '../utils/validation'
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
@@ -43,19 +46,7 @@ interface LoginBody {
 export default () => {
 	router.post(
 		'/register',
-		[
-			body('name').trim().notEmpty().withMessage('Name is required'),
-			body('surname').trim().notEmpty().withMessage('Surname is required'),
-			body('nickName').trim().notEmpty().withMessage('NickName is required'),
-			body('email').trim().isEmail().withMessage('Email must be a valid email'),
-			body('age').isInt({
-				min: 0
-			}).withMessage('Age must be a non-negative integer'),
-			body('role').isIn(Object.values(USER_ROLE)).withMessage('Invalid role'),
-			body('password').isLength({
-				min: 6
-			}).withMessage('Password must be at least 6 characters long')
-		],
+		registerValidation,
 		async (req: Request<{}, any, RegisterBody>, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -110,10 +101,7 @@ export default () => {
 
 	router.post(
 		'/login',
-		[
-			body('email').trim().isEmail().withMessage('Email must be a valid email'),
-			body('password').notEmpty().withMessage('Password is required')
-		],
+		loginValidation,
 		async (req: Request<{}, any, LoginBody>, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return

@@ -3,8 +3,6 @@ import {
 	Response,
 	NextFunction
 } from 'express'
-import { body, param } from 'express-validator'
-
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
 import {
@@ -17,6 +15,10 @@ import {
 	handleValidationResult
 } from '../utils/http'
 import { logError } from '../utils/logger'
+import {
+	trackUserExerciseValidation,
+	deleteUserExerciseValidation
+} from '../utils/validation'
 
 const router = Router()
 
@@ -63,11 +65,7 @@ export default () => {
 		'/',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.USER),
-		[
-			body('exerciseId').isInt({ min: 1 }).withMessage('exerciseId must be a positive integer'),
-			body('durationSeconds').isInt({ min: 1 }).withMessage('durationSeconds must be a positive integer'),
-			body('completedAt').optional().isISO8601().withMessage('completedAt must be a valid ISO8601 date')
-		],
+		trackUserExerciseValidation,
 		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -111,9 +109,7 @@ export default () => {
 		'/:id',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.USER),
-		[
-			param('id').isInt({ min: 1 }).withMessage('User exercise id must be a positive integer'),
-		],
+		deleteUserExerciseValidation,
 		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return

@@ -4,11 +4,6 @@ import {
 	Response,
 	NextFunction
 } from 'express'
-import {
-	body,
-	param
-} from 'express-validator'
-
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
 import {
@@ -21,6 +16,10 @@ import {
 	handleValidationResult
 } from '../utils/http'
 import { logError } from '../utils/logger'
+import {
+	getUserByIdValidation,
+	updateUserValidation
+} from '../utils/validation'
 
 const router = Router()
 
@@ -96,9 +95,7 @@ export default () => {
 		'/:id',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			param('id').isInt({ min: 1 }).withMessage('User id must be a positive integer')
-		],
+		getUserByIdValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -130,14 +127,7 @@ export default () => {
 		'/:id',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			param('id').isInt({ min: 1 }).withMessage('User id must be a positive integer'),
-			body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
-			body('surname').optional().trim().notEmpty().withMessage('Surname cannot be empty'),
-			body('nickName').optional().trim().notEmpty().withMessage('NickName cannot be empty'),
-			body('age').optional().isInt({ min: 0 }).withMessage('Age must be a non-negative integer'),
-			body('role').optional().isIn(Object.values(USER_ROLE)).withMessage('Invalid role')
-		],
+		updateUserValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return

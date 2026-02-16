@@ -4,8 +4,6 @@ import {
 	Response,
 	NextFunction
 } from 'express'
-import { param } from 'express-validator'
-
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
 import { authenticateJWT, authorizeRoles } from '../middleware/auth'
@@ -14,6 +12,10 @@ import {
 	handleValidationResult
 } from '../utils/http'
 import { logError } from '../utils/logger'
+import {
+	addExerciseToProgramValidation,
+	removeExerciseFromProgramValidation
+} from '../utils/validation'
 
 const router = Router()
 
@@ -32,10 +34,7 @@ export default () => {
 		'/:programId/exercises/:exerciseId',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			param('programId').isInt({ min: 1 }).withMessage('Program id must be a positive integer'),
-			param('exerciseId').isInt({ min: 1 }).withMessage('Exercise id must be a positive integer')
-		],
+		addExerciseToProgramValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
@@ -77,10 +76,7 @@ export default () => {
 		'/:programId/exercises/:exerciseId',
 		authenticateJWT,
 		authorizeRoles(USER_ROLE.ADMIN),
-		[
-			param('programId').isInt({ min: 1 }).withMessage('Program id must be a positive integer'),
-			param('exerciseId').isInt({ min: 1 }).withMessage('Exercise id must be a positive integer')
-		],
+		removeExerciseFromProgramValidation,
 		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 			if (!handleValidationResult(req, res)) {
 				return
