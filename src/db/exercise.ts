@@ -7,6 +7,7 @@ export interface ExerciseModel extends Model {
 	id: number
 	difficulty: EXERCISE_DIFFICULTY
 	name: String
+	programID: number | null
 
 	program: ProgramModel
 }
@@ -39,7 +40,7 @@ export default (sequelize: Sequelize, modelName: string) => {
 		ExerciseModelCtor.belongsTo(models.Program, {
 			foreignKey: {
 				name: 'programID',
-				allowNull: false
+				allowNull: true
 			},
 		})
 	}

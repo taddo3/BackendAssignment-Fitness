@@ -15,6 +15,12 @@ const sanitizeValue = (value: any): any => {
 
 	if (value && typeof value === 'object') {
 		const plain = value.toJSON ? value.toJSON() : value
+
+		// If toJSON() returned a primitive (e.g. Date -> string), just return it
+		if (!plain || typeof plain !== 'object') {
+			return plain
+		}
+
 		return Object.keys(plain).reduce((acc: any, key: string) => {
 			if (SENSITIVE_KEYS.includes(key)) {
 				return acc

@@ -5,6 +5,7 @@ import { sequelize } from './db'
 import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
 import AuthRouter from './routes/auth'
+import UsersRouter from './routes/users'
 import { responseSanitizer } from './middleware/sanitizeResponse'
 
 const app = express()
@@ -15,6 +16,7 @@ app.use(responseSanitizer)
 app.use('/auth', AuthRouter())
 app.use('/programs', ProgramRouter())
 app.use('/exercises', ExerciseRouter())
+app.use('/users', UsersRouter())
 
 const httpServer = http.createServer(app)
 

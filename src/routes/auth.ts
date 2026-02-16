@@ -4,12 +4,13 @@ import {
 	Response,
 	NextFunction
 } from 'express'
-import {
-	body,
-	validationResult
-} from 'express-validator'
+import { body } from 'express-validator'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import {
+	buildResponse,
+	handleValidationResult
+} from '../utils/http'
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
@@ -36,21 +37,6 @@ interface RegisterBody {
 interface LoginBody {
 	email: string
 	password: string
-}
-
-const buildResponse = (data: any, message: string) => ({
-	data,
-	message
-})
-
-const handleValidationResult = (req: Request, res: Response): boolean => {
-	const errors = validationResult(req)
-	if (!errors.isEmpty()) {
-		const firstError = errors.array()[0]
-		res.status(400).json(buildResponse({}, firstError.msg))
-		return false
-	}
-	return true
 }
 
 export default () => {
