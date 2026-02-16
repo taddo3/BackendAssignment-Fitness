@@ -1,0 +1,134 @@
+import {
+	Router,
+	Response,
+	NextFunction
+} from 'express'
+import { body, param } from 'express-validator'
+
+import { models } from '../db'
+import { USER_ROLE } from '../utils/enums'
+import {
+	authenticateJWT,
+	authorizeRoles,
+	AuthenticatedRequest
+} from '../middleware/auth'
+import {
+	buildResponse,
+	handleValidationResult
+} from '../utils/http'
+
+const router = Router()
+
+const {
+	Exercise,
+	UserExercise
+} = models
+
+export default () => {
+	router.get(
+		'/',
+		authenticateJWT,
+		authorizeRoles(USER_ROLE.USER),
+		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
+			try {
+				const userId = req.user.id
+
+				const completed = await UserExercise.findAll({
+					where: {
+						userID: userId
+					},
+					include: [
+						{
+							model: Exercise,
+							as: 'exercise'
+						}
+					]
+				})
+
+				return res.json(buildResponse(completed, 'List of completed exercises'))
+			} catch (error) {
+				console.error('Error listing user exercises', error)
+				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+			}
+		}
+	)
+
+	router.post(
+		'/',
+		authenticateJWT,
+		authorizeRoles(USER_ROLE.USER),
+		[
+			body('exerciseId').isInt({ min: 1 }).withMessage('exerciseId must be a positive integer'),
+			body('durationSeconds').isInt({ min: 1 }).withMessage('durationSeconds must be a positive integer'),
+			body('completedAt').optional().isISO8601().withMessage('completedAt must be a valid ISO8601 date')
+		],
+		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
+			if (!handleValidationResult(req, res)) {
+				return
+			}
+
+			const userId = req.user.id
+			const {
+				exerciseId,
+				durationSeconds,
+				completedAt
+			} = req.body
+
+			try {
+				const exercise = await Exercise.findByPk(exerciseId)
+				if (!exercise) {
+					return res.status(404).json(buildResponse({}, 'Exercise not found'))
+				}
+
+				const tracked = await UserExercise.create({
+					userID: userId,
+					exerciseID: exerciseId,
+					durationSeconds,
+					completedAt: completedAt ? new Date(completedAt) : new Date()
+				})
+
+				return res.status(201).json(buildResponse(tracked, 'Exercise tracked as completed'))
+			} catch (error) {
+				console.error('Error tracking user exercise', error)
+				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+			}
+		}
+	)
+
+	router.delete(
+		'/:id',
+		authenticateJWT,
+		authorizeRoles(USER_ROLE.USER),
+		[
+			param('id').isInt({ min: 1 }).withMessage('User exercise id must be a positive integer'),
+		],
+		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
+			if (!handleValidationResult(req, res)) {
+				return
+			}
+
+			const userId = req.user.id
+			const userExerciseId = Number(req.params.id)
+
+			try {
+				const userExercise = await UserExercise.findByPk(userExerciseId)
+				if (!userExercise) {
+					return res.status(404).json(buildResponse({}, 'User completed exercise not found'))
+				}
+				if (userExercise.userID !== userId) {
+					return res.status(403).json(buildResponse({}, 'User can remove only his own completed exercises'))
+				}
+
+				await userExercise.destroy()
+
+				return res.json(buildResponse({}, 'User exercise deleted'))
+			} catch (error) {
+				console.error('Error deleting user exercise', error)
+				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+			}
+		}
+	)
+
+	return router
+}
+

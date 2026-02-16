@@ -11,7 +11,11 @@ import {
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
-import { authenticateJWT, authorizeRoles } from '../middleware/auth'
+import {
+	authenticateJWT,
+	authorizeRoles,
+	AuthenticatedRequest
+} from '../middleware/auth'
 import {
 	buildResponse,
 	handleValidationResult
@@ -27,13 +31,51 @@ export default () => {
 	router.get(
 		'/',
 		authenticateJWT,
-		authorizeRoles(USER_ROLE.ADMIN),
-		async (_req: Request, res: Response, _next: NextFunction): Promise<any> => {
+		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
 			try {
-				const users = await User.findAll()
-				return res.json(buildResponse(users, 'List of users'))
+				if (!req.user) {
+					return res.status(401).json(buildResponse({}, 'Authentication required'))
+				}
+
+				// ADMIN: full user data
+				if (req.user.role === USER_ROLE.ADMIN) {
+					const users = await User.findAll()
+					return res.json(buildResponse(users, 'List of users'))
+				}
+
+				// USER: only id and nickName for all users
+				if (req.user.role === USER_ROLE.USER) {
+					const users = await User.findAll({
+						attributes: ['id', 'nickName']
+					})
+					return res.json(buildResponse(users, 'List of users'))
+				}
+
+				// Any other role is forbidden
+				return res.status(403).json(buildResponse({}, 'Forbidden'))
 			} catch (error) {
 				console.error('Error listing users', error)
+				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+			}
+		}
+	)
+
+	router.get(
+		'/me',
+		authenticateJWT,
+		authorizeRoles(USER_ROLE.USER),
+		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
+			try {
+				const user = await User.findByPk(req.user.id, {
+					attributes: ['name', 'surname', 'age', 'nickName']
+				})
+				if (!user) {
+					return res.status(404).json(buildResponse({}, 'User not found'))
+				}
+
+				return res.json(buildResponse(user, 'User profile'))
+			} catch (error) {
+				console.error('Error getting own profile', error)
 				return res.status(500).json(buildResponse({}, 'Something went wrong'))
 			}
 		}

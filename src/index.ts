@@ -6,6 +6,7 @@ import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
 import AuthRouter from './routes/auth'
 import UsersRouter from './routes/users'
+import UserExerciseRouter from './routes/userExercise'
 import { responseSanitizer } from './middleware/sanitizeResponse'
 
 const app = express()
@@ -17,6 +18,7 @@ app.use('/auth', AuthRouter())
 app.use('/programs', ProgramRouter())
 app.use('/exercises', ExerciseRouter())
 app.use('/users', UsersRouter())
+app.use('/user-exercises', UserExerciseRouter())
 
 const httpServer = http.createServer(app)
 
