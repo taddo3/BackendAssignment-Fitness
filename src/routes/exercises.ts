@@ -6,8 +6,10 @@ import {
 } from 'express'
 import {
 	body,
-	param
+	param,
+	query
 } from 'express-validator'
+import { Op } from 'sequelize'
 
 import { models } from '../db'
 import { EXERCISE_DIFFICULTY, USER_ROLE } from '../utils/enums'
@@ -25,15 +27,72 @@ const {
 } = models
 
 export default () => {
-	router.get('/', async (_req: Request, res: Response, _next: NextFunction): Promise<any> => {
-		const exercises = await Exercise.findAll({
-			include: [{
-				model: Program
-			}]
-		})
+	router.get(
+		'/',
+		[
+			query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+			query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+			query('programID').optional().isInt({ min: 1 }).withMessage('programID must be a positive integer'),
+			query('search').optional().trim().notEmpty().withMessage('Search cannot be empty')
+		],
+		async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
+			if (!handleValidationResult(req, res)) {
+				return
+			}
 
-		return res.json(buildResponse(exercises, 'List of exercises'))
-	})
+			try {
+				const page = req.query.page ? Number(req.query.page) : 1
+				const limit = req.query.limit ? Number(req.query.limit) : 10
+				const programID = req.query.programID ? Number(req.query.programID) : undefined
+				const search = req.query.search ? String(req.query.search).trim() : undefined
+
+				const where: any = {}
+
+				// Filter by programID
+				if (programID) {
+					where.programID = programID
+				}
+
+				// Full-text search on exercise name
+				if (search) {
+					where.name = {
+						[Op.iLike]: `%${search}%`
+					}
+				}
+
+				const offset = (page - 1) * limit
+
+				// Get total count for pagination metadata
+				const totalCount = await Exercise.count({ where })
+
+				// Get paginated exercises
+				const exercises = await Exercise.findAll({
+					where,
+					include: [{
+						model: Program
+					}],
+					limit,
+					offset,
+					order: [['id', 'ASC']]
+				})
+
+				const totalPages = Math.ceil(totalCount / limit)
+
+				return res.json(buildResponse({
+					exercises,
+					pagination: {
+						page,
+						limit,
+						totalCount,
+						totalPages
+					}
+				}, 'List of exercises'))
+			} catch (error) {
+				console.error('Error listing exercises', error)
+				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+			}
+		}
+	)
 
 	router.post(
 		'/',
