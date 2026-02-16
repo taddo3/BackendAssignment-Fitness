@@ -45,10 +45,10 @@ export default () => {
 					]
 				})
 
-				return res.json(buildResponse(completed, 'List of completed exercises'))
+				return res.json(buildResponse(req, completed, 'List of completed exercises'))
 			} catch (error) {
 				console.error('Error listing user exercises', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -77,7 +77,7 @@ export default () => {
 			try {
 				const exercise = await Exercise.findByPk(exerciseId)
 				if (!exercise) {
-					return res.status(404).json(buildResponse({}, 'Exercise not found'))
+					return res.status(404).json(buildResponse(req, {}, 'Exercise not found'))
 				}
 
 				const tracked = await UserExercise.create({
@@ -87,10 +87,10 @@ export default () => {
 					completedAt: completedAt ? new Date(completedAt) : new Date()
 				})
 
-				return res.status(201).json(buildResponse(tracked, 'Exercise tracked as completed'))
+				return res.status(201).json(buildResponse(req, tracked, 'Exercise tracked as completed'))
 			} catch (error) {
 				console.error('Error tracking user exercise', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -113,18 +113,18 @@ export default () => {
 			try {
 				const userExercise = await UserExercise.findByPk(userExerciseId)
 				if (!userExercise) {
-					return res.status(404).json(buildResponse({}, 'User completed exercise not found'))
+					return res.status(404).json(buildResponse(req, {}, 'User completed exercise not found'))
 				}
 				if (userExercise.userID !== userId) {
-					return res.status(403).json(buildResponse({}, 'User can remove only his own completed exercises'))
+					return res.status(403).json(buildResponse(req, {}, 'User can remove only his own completed exercises'))
 				}
 
 				await userExercise.destroy()
 
-				return res.json(buildResponse({}, 'User exercise deleted'))
+				return res.json(buildResponse(req, {}, 'User exercise deleted'))
 			} catch (error) {
 				console.error('Error deleting user exercise', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)

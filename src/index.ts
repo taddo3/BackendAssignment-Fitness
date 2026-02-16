@@ -8,11 +8,13 @@ import AuthRouter from './routes/auth'
 import UsersRouter from './routes/users'
 import UserExerciseRouter from './routes/userExercise'
 import { responseSanitizer } from './middleware/sanitizeResponse'
+import { languageMiddleware } from './middleware/language'
 
 const app = express()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(languageMiddleware)
 app.use(responseSanitizer)
 app.use('/auth', AuthRouter())
 app.use('/programs', ProgramRouter())

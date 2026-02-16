@@ -34,13 +34,13 @@ export default () => {
 		async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<any> => {
 			try {
 				if (!req.user) {
-					return res.status(401).json(buildResponse({}, 'Authentication required'))
+					return res.status(401).json(buildResponse(req, {}, 'Authentication required'))
 				}
 
 				// ADMIN: full user data
 				if (req.user.role === USER_ROLE.ADMIN) {
 					const users = await User.findAll()
-					return res.json(buildResponse(users, 'List of users'))
+					return res.json(buildResponse(req, users, 'List of users'))
 				}
 
 				// USER: only id and nickName for all users
@@ -48,14 +48,14 @@ export default () => {
 					const users = await User.findAll({
 						attributes: ['id', 'nickName']
 					})
-					return res.json(buildResponse(users, 'List of users'))
+					return res.json(buildResponse(req, users, 'List of users'))
 				}
 
 				// Any other role is forbidden
-				return res.status(403).json(buildResponse({}, 'Forbidden'))
+				return res.status(403).json(buildResponse(req, {}, 'Forbidden'))
 			} catch (error) {
 				console.error('Error listing users', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -70,13 +70,13 @@ export default () => {
 					attributes: ['name', 'surname', 'age', 'nickName']
 				})
 				if (!user) {
-					return res.status(404).json(buildResponse({}, 'User not found'))
+					return res.status(404).json(buildResponse(req, {}, 'User not found'))
 				}
 
-				return res.json(buildResponse(user, 'User profile'))
+				return res.json(buildResponse(req, user, 'User profile'))
 			} catch (error) {
 				console.error('Error getting own profile', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -98,13 +98,13 @@ export default () => {
 			try {
 				const user = await User.findByPk(userId)
 				if (!user) {
-					return res.status(404).json(buildResponse({}, 'User not found'))
+					return res.status(404).json(buildResponse(req, {}, 'User not found'))
 				}
 
-				return res.json(buildResponse(user, 'User detail'))
+				return res.json(buildResponse(req, user, 'User detail'))
 			} catch (error) {
 				console.error('Error getting user detail', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -138,7 +138,7 @@ export default () => {
 			try {
 				const user = await User.findByPk(userId)
 				if (!user) {
-					return res.status(404).json(buildResponse({}, 'User not found'))
+					return res.status(404).json(buildResponse(req, {}, 'User not found'))
 				}
 
 				await user.update({
@@ -149,10 +149,10 @@ export default () => {
 					role: role ?? user.role
 				})
 
-				return res.json(buildResponse(user, 'User updated'))
+				return res.json(buildResponse(req, user, 'User updated'))
 			} catch (error) {
 				console.error('Error updating user', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)

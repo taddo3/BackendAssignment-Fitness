@@ -78,7 +78,7 @@ export default () => {
 				})
 
 				if (existing) {
-					return res.status(400).json(buildResponse({}, 'User with given email already exists'))
+					return res.status(400).json(buildResponse(req, {}, 'User with given email already exists'))
 				}
 
 				const saltRounds = 10
@@ -94,10 +94,10 @@ export default () => {
 					passwordHash
 				})
 
-				return res.status(201).json(buildResponse(createdUser, 'You have successfully registered'))
+				return res.status(201).json(buildResponse(req, createdUser, 'You have successfully registered'))
 			} catch (error) {
 				console.error('Error in register', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -126,13 +126,13 @@ export default () => {
 				})
 
 				if (!user) {
-					return res.status(401).json(buildResponse({}, 'Invalid credentials'))
+					return res.status(401).json(buildResponse(req, {}, 'Invalid credentials'))
 				}
 
 				const isValid = await bcrypt.compare(password, user.passwordHash)
 
 				if (!isValid) {
-					return res.status(401).json(buildResponse({}, 'Invalid credentials'))
+					return res.status(401).json(buildResponse(req, {}, 'Invalid credentials'))
 				}
 
 				const token = jwt.sign(
@@ -147,12 +147,12 @@ export default () => {
 					}
 				)
 
-				return res.json(buildResponse({
+				return res.json(buildResponse(req, {
 					token
 				}, 'You have successfully logged in'))
 			} catch (error) {
 				console.error('Error in login', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)

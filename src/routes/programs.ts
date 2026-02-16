@@ -22,9 +22,9 @@ const {
 } = models
 
 export default () => {
-	router.get('/', async (_req: Request, res: Response, _next: NextFunction): Promise<any> => {
+	router.get('/', async (req: Request, res: Response, _next: NextFunction): Promise<any> => {
 		const programs = await Program.findAll()
-		return res.json(buildResponse(programs, 'List of programs'))
+		return res.json(buildResponse(req, programs, 'List of programs'))
 	})
 
 	router.post(
@@ -46,22 +46,22 @@ export default () => {
 			try {
 				const program = await Program.findByPk(programId)
 				if (!program) {
-					return res.status(404).json(buildResponse({}, 'Program not found'))
+					return res.status(404).json(buildResponse(req, {}, 'Program not found'))
 				}
 
 				const exercise = await Exercise.findByPk(exerciseId)
 				if (!exercise) {
-					return res.status(404).json(buildResponse({}, 'Exercise not found'))
+					return res.status(404).json(buildResponse(req, {}, 'Exercise not found'))
 				}
 
 				await exercise.update({
 					programID: programId
 				})
 
-				return res.json(buildResponse(exercise, 'Exercise added to program'))
+				return res.json(buildResponse(req, exercise, 'Exercise added to program'))
 			} catch (error) {
 				console.error('Error adding exercise to program', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -86,17 +86,17 @@ export default () => {
 				const exercise = await Exercise.findByPk(exerciseId)
 				const currentProgramID = Number(exercise?.programID)
 				if (!exercise || currentProgramID !== programId) {
-					return res.status(404).json(buildResponse({}, 'Exercise not found in given program'))
+					return res.status(404).json(buildResponse(req, {}, 'Exercise not found in given program'))
 				}
 
 				await exercise.update({
 					programID: null
 				})
 
-				return res.json(buildResponse(exercise, 'Exercise removed from program'))
+				return res.json(buildResponse(req, exercise, 'Exercise removed from program'))
 			} catch (error) {
 				console.error('Error removing exercise from program', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)

@@ -78,7 +78,7 @@ export default () => {
 
 				const totalPages = Math.ceil(totalCount / limit)
 
-				return res.json(buildResponse({
+				return res.json(buildResponse(req, {
 					exercises,
 					pagination: {
 						page,
@@ -89,7 +89,7 @@ export default () => {
 				}, 'List of exercises'))
 			} catch (error) {
 				console.error('Error listing exercises', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -118,7 +118,7 @@ export default () => {
 				if (programID) {
 					const program = await Program.findByPk(programID)
 					if (!program) {
-						return res.status(404).json(buildResponse({}, 'Program not found'))
+						return res.status(404).json(buildResponse(req, {}, 'Program not found'))
 					}
 				}
 
@@ -128,10 +128,10 @@ export default () => {
 					programID: programID ?? null
 				})
 
-				return res.status(201).json(buildResponse(exercise, 'Exercise created'))
+				return res.status(201).json(buildResponse(req, exercise, 'Exercise created'))
 			} catch (error) {
 				console.error('Error creating exercise', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -161,13 +161,13 @@ export default () => {
 			try {
 				const exercise = await Exercise.findByPk(exerciseId)
 				if (!exercise) {
-					return res.status(404).json(buildResponse({}, 'Exercise not found'))
+					return res.status(404).json(buildResponse(req, {}, 'Exercise not found'))
 				}
 
 				if (programID) {
 					const program = await Program.findByPk(programID)
 					if (!program) {
-						return res.status(404).json(buildResponse({}, 'Program not found'))
+						return res.status(404).json(buildResponse(req, {}, 'Program not found'))
 					}
 				}
 
@@ -179,10 +179,10 @@ export default () => {
 					programID: programID ?? currentProgramID
 				})
 
-				return res.json(buildResponse(exercise, 'Exercise updated'))
+				return res.json(buildResponse(req, exercise, 'Exercise updated'))
 			} catch (error) {
 				console.error('Error updating exercise', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
@@ -204,15 +204,15 @@ export default () => {
 			try {
 				const exercise = await Exercise.findByPk(exerciseId)
 				if (!exercise) {
-					return res.status(404).json(buildResponse({}, 'Exercise not found'))
+					return res.status(404).json(buildResponse(req, {}, 'Exercise not found'))
 				}
 
 				await exercise.destroy()
 
-				return res.json(buildResponse({}, 'Exercise deleted'))
+				return res.json(buildResponse(req, {}, 'Exercise deleted'))
 			} catch (error) {
 				console.error('Error deleting exercise', error)
-				return res.status(500).json(buildResponse({}, 'Something went wrong'))
+				return res.status(500).json(buildResponse(req, {}, 'Something went wrong'))
 			}
 		}
 	)
