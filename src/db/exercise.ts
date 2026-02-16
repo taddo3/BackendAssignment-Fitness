@@ -32,7 +32,14 @@ export default (sequelize: Sequelize, modelName: string) => {
 		{
 			paranoid: true,
 			timestamps: true,
-			tableName: 'exercises'
+			tableName: 'exercises',
+			indexes: [
+				{
+					name: 'exercises_name_idx',
+					fields: ['name'],
+					using: 'BTREE'
+				}
+			]
 		}
 	)
 

@@ -1,7 +1,7 @@
 import http from 'http'
 import express from 'express'
 
-import { sequelize } from './db'
+import { sequelize, createSearchIndexes } from './db'
 import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
 import AuthRouter from './routes/auth'
@@ -29,11 +29,18 @@ app.use(errorHandler)
 
 const httpServer = http.createServer(app)
 
-try {
-    sequelize.sync()
-} catch (error) {
-    logError(error, 'Sequelize sync error')
+// Initialize database and indexes
+const initializeDatabase = async () => {
+	try {
+		await sequelize.sync()
+		// Create optimized indexes for full-text search after tables are synced
+		await createSearchIndexes()
+	} catch (error) {
+		logError(error, 'Sequelize sync error')
+	}
 }
+
+initializeDatabase()
 
 httpServer.listen(8000).on('listening', () => console.log(`Server started at port ${8000}`))
 
